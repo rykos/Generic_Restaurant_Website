@@ -1,0 +1,18 @@
+@model Restaurant_Website.Models.Food
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="column-sm">
+            <img src="/food_images/@Model.ImageName" alt="" height="400px" width="400px">
+        </div>
+        <div class="column-sm" style="position: relative;">
+            <div class="container" style="display: flex; flex-direction: column;">
+                <h1>@Model.Name</h1>
+                <h2>@Model.Description</h2>
+                <h3>@Model.Price$</h3>
+                <a asp-controller="MainMenu" asp-action="Index" style="position: absolute; bottom: 0;"><button type="button" class="btn btn-primary">Back</button></a>
+            </div>
+        </div>
+    </div>
+
+</div>

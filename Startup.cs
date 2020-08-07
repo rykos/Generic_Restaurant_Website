@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Restaurant_Website.Data;
+using Microsoft.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace Restaurant_Website
 {
@@ -24,6 +27,9 @@ namespace Restaurant_Website
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+            services.AddDbContext<MvcFoodContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
+            services.AddDbContext<CartContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
