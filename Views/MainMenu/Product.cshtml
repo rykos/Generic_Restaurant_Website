@@ -1,4 +1,18 @@
 @model Restaurant_Website.Models.Food
+
+<div style="position: absolute; right: 0; bottom: 50%; height: 300px; width: 300px; background-color: #333; color: white; display: flex; flex-direction: column;">
+    @{
+        if(ViewBag.CartBuffer != null){
+            foreach (CartItem item in ViewBag.CartBuffer){
+                <div style="width: 100%;">
+                    <img src="/food_images/@item.Food.ImageName" width="50px" height="50px" alt="">
+                    @item.Food.Name
+                    times @item.Amount
+                </div>   
+            }
+        }
+    }
+</div>
 <div class="container-fluid">
 
     <div class="row">
@@ -10,7 +24,10 @@
                 <h1>@Model.Name</h1>
                 <h2>@Model.Description</h2>
                 <h3>@Model.Price$</h3>
-                <a asp-controller="MainMenu" asp-action="Index" style="position: absolute; bottom: 0;"><button type="button" class="btn btn-primary">Back</button></a>
+                <div style="width: 100%; position: absolute; bottom: 0;">
+                    <a asp-controller="MainMenu" asp-action="Index"><button type="button" class="btn btn-primary">Back</button></a>
+                    <a asp-controller="MainMenu" asp-action="AddToCart" asp-route-id="@Model.Id"><button type="button" class="btn btn-success">Add to cart</button></a>
+                </div>
             </div>
         </div>
     </div>
