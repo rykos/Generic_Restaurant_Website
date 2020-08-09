@@ -2,17 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Net.Http.Headers;
 using Restaurant_Website.Data;
 using Restaurant_Website.Models;
 
 namespace Restaurant_Website.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class FoodCRUDController : Controller
     {
         private readonly MvcFoodContext _context;

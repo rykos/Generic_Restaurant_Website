@@ -11,6 +11,8 @@ using Microsoft.Extensions.Hosting;
 using Restaurant_Website.Data;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using Restaurant_Website.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Restaurant_Website
 {
@@ -27,16 +29,29 @@ namespace Restaurant_Website
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDistributedMemoryCache();
+
+            services.AddDbContext<MvcFoodContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
+            services.AddDbContext<CartContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
+            services.AddDbContext<UserContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
+
             services.AddSession(options =>
             {
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
 
-            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<UserContext>()
+            .AddDefaultTokenProviders(); 
 
-            services.AddDbContext<MvcFoodContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
-            services.AddDbContext<CartContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
+            // services.AddAuthentication("CookieAuth").AddCookie("CookieAuth", config =>
+            // {
+            //     config.Cookie.Name = "Auth.Cookie";
+            //     config.LoginPath = "/Login/login";
+            //     config.LogoutPath = "/Login/logout";
+            // });
+
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,6 +72,8 @@ namespace Restaurant_Website
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

@@ -21,6 +21,7 @@ namespace Restaurant_Website.Controllers
         //Get MainMenu
         public async Task<IActionResult> Index()
         {
+            ViewBag.FoodTypes = this.GetFoodCategory();
             return View(await _foodContext.Food.Where(x => x.Available == true).ToListAsync());
         }
 
@@ -77,6 +78,17 @@ namespace Restaurant_Website.Controllers
                 }
             }
             return cartItems;
+        }
+
+        private string[] GetFoodCategory()
+        {
+            return _foodContext.Food.Where(p => p.Available).Select(p => p.Type).Distinct().ToArray();
+        }
+
+        public async Task<IActionResult> Category(string category)
+        {
+            ViewBag.FoodTypes = this.GetFoodCategory();
+            return View(await _foodContext.Food.Where(p => p.Available && p.Type == category).ToListAsync());
         }
     }
 }

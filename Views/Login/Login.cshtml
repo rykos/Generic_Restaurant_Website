@@ -1,0 +1,47 @@
+@model Restaurant_Website.Models.User
+@{
+    ViewData["title"] = "Login";
+}
+<div class="container" style="width: 30%;">
+    <div id="fail-alert" class="alert alert-danger" role="alert" style="display: none;">Invalid username or password</div>
+    <form id="loginForm" method="POST">
+        <div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Username" class="control-label"></label>
+                <input asp-for="Username" id="Username" type="text" class="form-control"/>
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" id="Password" type="password" class="form-control"/>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+        <div>
+            <div style="margin: auto; display: flex; justify-content: center;">
+                <button id="sendbutton" type="submit" class="btn btn-primary" style="margin-right: 20%;">Login</button>
+                <a asp-controller="MainMenu" asp-action="Index"><input type="button" value="Back" class="btn btn-danger"/></a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.js" type="text/javascript"></script>
+<script>
+$("#loginForm").submit(function(e)
+{
+    e.preventDefault();
+    var postdata = "Username="+$("#Username").val()+"&"+"Password="+$("#Password").val();
+    var response = $.post("/Login/Login", postdata).done(function(data) {
+        window.location.replace("/MainMenu");
+    }).fail(function() {
+        $("#fail-alert").show();
+    });
+});
+</script>
+
+<!--
+var postdata = "Username="+$("#Username").val()+"&"+"Password="+$("#Password").val();
+    var response = $.post("/Login/Login", postdata).done(function() {console.log("succ");}).fail(function() {console.log("fail");});
+-->
