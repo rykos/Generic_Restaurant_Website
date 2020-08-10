@@ -1,0 +1,30 @@
+<div style="right: 0; top: 10%; height: 300px; width: 300px; background-color: #333; color: white; display: flex; flex-direction: column; position: absolute;">
+    <div id="Cart">
+    @{
+        if(ViewBag.CartBuffer != null){
+            foreach (CartItem item in ViewBag.CartBuffer){
+                <div class="CartItemDiv" style="width: 100%;">
+                    <img src="/food_images/@item.Food.ImageName" width="50px" height="50px" alt="">
+                    @item.Food.Name
+                    times @item.Amount
+                </div>   
+            }
+        }
+    }
+    <a onclick="Finalyze()"><button type="button" class="btn btn-success" style="width: 90%; bottom: 0px; position: absolute; margin-left: 5%; margin-bottom: 2%;">Buy</button></a>
+    </div>
+    <script>
+        function UpdateCart(){
+            $.get("/MainMenu/GetCartItems").done(function(msg) {
+                ms = $.parseHTML(msg);
+                var res = $(ms).find("#Cart")[0];
+                $("#Cart").replaceWith(res);
+            });
+        }
+        function Finalyze(){
+            if($(".CartItemDiv").length > 0){
+                window.location.href = "/MainMenu/Finalyze";
+            }
+        }
+    </script>
+</div>

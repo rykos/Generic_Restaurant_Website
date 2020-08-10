@@ -28,9 +28,44 @@
               <div class="card-body" style="justify-content: center; text-align: center;">
                 <h5 class="card-title">@item.Name</h5>
                 <p class="card-text">@item.Description</p>
-                <h6 style="text-align: right; margin: 0px;">@item.Price</h6>
+                <div style="align-items: center;">
+                  <button type="button" class="btn btn-success" style="margin-left: 0px;" onclick="return AddToCartFunction(@item.Id);">Add to cart</button>
+                  <h6 style="text-align: right; margin: 0px;" style="margin-right: 0px;">@item.Price</h6>
+                </div>
               </div>
             </div>
           </a>
         }
   </div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="exampleModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@await Html.PartialAsync("/Views/Cart/CartPartial.cshtml")
+
+  <script>
+    function AddToCartFunction(id){
+      $.post("/MainMenu/AddToCart/"+id).done(function(){
+        $('#exampleModalBody').text("Added to cart");
+        $('#exampleModal').modal('toggle');
+        UpdateCart();
+      }).fail(function(){
+        $('#exampleModalBody').text("Failed adding to cart");
+        $('#exampleModal').modal('toggle');
+      });
+      return false;
+    }
+  </script>
