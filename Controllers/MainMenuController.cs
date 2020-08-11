@@ -129,14 +129,14 @@ namespace Restaurant_Website.Controllers
         public decimal GetCartPrice()
         {
             decimal totalprice = 0;
-            CartItems(HttpContext.Session.GetString("CartBuffer")).ForEach(x =>
+            CartItems(HttpContext.Session.GetString("CartBuffer"))?.ForEach(x =>
             {
                 totalprice += x.Food.Price * x.Amount;
             });
             return totalprice;
         }
 
-        public async Task<IActionResult> Finalyze()
+        public IActionResult Finalyze()
         {
             return View(this.CartItems(HttpContext.Session.GetString("CartBuffer")));
         }
@@ -145,6 +145,11 @@ namespace Restaurant_Website.Controllers
         {
             ViewBag.FoodTypes = this.GetFoodCategory();
             return View(await _foodContext.Food.Where(p => p.Available && p.Type == category).ToListAsync());
+        }
+
+        public IActionResult CapturePaypalTransaction(string json)
+        {
+            return null;
         }
     }
 }

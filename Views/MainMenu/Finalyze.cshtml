@@ -1,5 +1,65 @@
 @model IEnumerable<CartItem>
+@if(Model == null){
+    <script>
+        window.location.replace("/mainmenu");
+    </script>
+    return;
+}
+<div>
+    <script src="~/lib/jquery/dist/jquery.js" type="text/javascript"></script>
+    <script>
+        async function GetTotalPriceAsync() {
+            const result = await $.ajax({
+                url: "/mainmenu/getcartprice",
+                type: 'GET'
+            });
+            return result;
+        }
 
+        async function GetJsonData(){
+            var price = await GetTotalPriceAsync();
+            return {
+                purchase_units: [{
+                amount: {
+                    value: price
+                }
+                }]
+            };
+            //return JSON.stringify(purchase_units: [{1}]);
+        }
+
+        function UpdateTotalPrice(){
+            $.get("/mainmenu/getcartprice").done(function(price) {
+                $("#TotalPrice").text(price);
+            });
+        }
+
+        function AddToCartFunction(id){
+        $.post("/MainMenu/AddToCart/"+id).done(function(){
+                UpdateTotalPrice();
+                elementName = "#AmountValue_" + id;
+                val = $(elementName).text();
+                val = parseInt(val, 10) + 1;
+                $(elementName).text(val);
+            });
+            return false;
+        }
+
+        function RemoveFromCartFunction(id){
+        $.post("/MainMenu/RemoveFromCart/"+id).done(function(){
+                UpdateTotalPrice();
+                elementName = "#AmountValue_" + id;
+                val = $(elementName).text();
+                val = parseInt(val, 10) - 1;
+                $(elementName).text(val);
+            });
+            return false;
+        }
+
+        document.addEventListener('DOMContentLoaded', UpdateTotalPrice(), false);
+    </script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AWormDjZhUILLdw4oh0BPyi6zjWhN--ZilOyJyDRAiAQAt_D9kElz7KTsJske2ZOO_Nav2cl45_Gz8s5&currency=PLN"></script>
+</div>
 
 @{
     foreach (var item in Model)
@@ -15,7 +75,7 @@
                 <div style="width: 30%; display: flex; align-items: flex-end;">
                     <div class="btn-group" role="group" style="margin-right: 0px; margin-left: auto;">
                         <button onclick="RemoveFromCartFunction(@item.FoodID);" type="button" class="btn btn-danger">-</button>
-                        <button id="AmountValue" type="button" class="btn btn-light" disabled>@item.Amount</button>
+                        <button id="AmountValue_@item.FoodID" type="button" class="btn btn-light" disabled>@item.Amount</button>
                         <button onclick="AddToCartFunction(@item.FoodID);" type="button" class="btn btn-success">+</button>
                     </div>
                 </div>
@@ -41,26 +101,24 @@
                 <div>Total: </div>
                 <div id="TotalPrice">15</div>
             </div>
+            <div id="paypal-button-container" style="width: 70%; margin: auto;"></div>
+            <script>
+                paypal.Buttons({
+                    createOrder: async function(data, actions) {
+                        // This function sets up the details of the transaction, including the amount and line item details.
+                        var resjson = await GetJsonData();
+                        return actions.order.create(resjson);
+                    },
+                    onApprove: function(data, actions) {
+                        // This function captures the funds from the transaction.
+                        return actions.order.capture().then(function(details) {
+                            // This function shows a transaction success message to your buyer.
+                            console.log(details);
+                            alert('Transaction completed by ' + details.payer.name.given_name);
+                        });
+                    }
+                }).render('#paypal-button-container');
+            </script>
         </div>
     </div>
 }
-
-<script>
-    function UpdateTotalPrice(){
-        $.get("/mainmenu/getcartprice").done(function(price) {
-            $("#TotalPrice").text(price);
-        });
-    }
-    function AddToCartFunction(id){
-      $.post("/MainMenu/AddToCart/"+id).done(function(){
-        UpdateTotalPrice();
-      });
-      return false;
-    }
-    function RemoveFromCartFunction(id){
-      $.post("/MainMenu/RemoveFromCart/"+id).done(function(){
-        UpdateTotalPrice();
-      });
-      return false;
-    }
-</script>

@@ -44,13 +44,6 @@ namespace Restaurant_Website
             .AddEntityFrameworkStores<UserContext>()
             .AddDefaultTokenProviders(); 
 
-            // services.AddAuthentication("CookieAuth").AddCookie("CookieAuth", config =>
-            // {
-            //     config.Cookie.Name = "Auth.Cookie";
-            //     config.LoginPath = "/Login/login";
-            //     config.LogoutPath = "/Login/logout";
-            // });
-
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 

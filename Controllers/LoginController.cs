@@ -78,7 +78,6 @@ namespace Restaurant_Website.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([Bind("Email,Username,Password")] User user)
         {
-            IdentityResult roleResult;
             bool adminRoleExists = await this.roleManager.RoleExistsAsync("Administrator");
             if (!adminRoleExists)
             {
