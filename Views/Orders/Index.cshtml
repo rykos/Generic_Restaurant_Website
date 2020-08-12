@@ -1,0 +1,85 @@
+@model IEnumerable<Order>
+<style>
+    span{
+        margin: 0.75%;
+    }
+</style>
+<script>
+    function FetchProductName(id){
+        $.post("Orders/FinishOrder/"+id);
+    }
+</script>
+@section Topmenu{
+    <li>
+        <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="History">Orders History</a>
+    </li>
+}
+@functions{
+    public struct CartBufferElement
+    {
+        public int Id;
+        public int Amount;
+        public CartBufferElement(int id, int amount)
+        {
+            this.Id = id;
+            this.Amount = amount;
+        }
+    }
+    public CartBufferElement[] GetProductsFromCartBuffer(string cartBuffer)
+    {
+        string[] split = cartBuffer.Split(";").Where(x => x.Length > 0).ToArray();
+        CartBufferElement[] elements = new CartBufferElement[split.Length];
+        int i = 0;
+        foreach (var item in split)
+        {
+            string[] elementPart = item.Split(',');
+            elements[i] = new CartBufferElement(int.Parse(elementPart[0]), int.Parse(elementPart[1]));
+            i++;
+        }
+        return elements;
+    }
+}
+@{
+    if(Model.Count() == 0){
+        <div class="jumbotron jumbotron-fluid">
+            <div>
+                <h1 style="text-align: center;">Currently there are no orders</h1>    
+            </div>
+        </div>
+    }
+    foreach(var item in Model)
+    {
+        <div class="jumbotron jumbotron-fluid">
+            <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: flex-start; justify-content: space-evenly; white-space: nowrap;">
+                    <span class="badge badge-secondary">
+                        <h4 style="margin-right: 3%;">Order number: @item.Id</h4>
+                    </span>
+                    <span class="badge badge-secondary">
+                        <h5 style="margin-right: 1%;">Ordered at: @item.CreationDate.TimeOfDay</h5>
+                    </span>
+                    <span class="badge badge-secondary">
+                        <h6 style="margin-right: 1%;">@item.CreationDate.ToShortDateString()</h6>
+                    </span>
+                    <span class="badge badge-secondary">
+                        <h5>Ship to: 
+                            <div style="font-size: 1.5vh;">Ulica asdooaskdoaksdoaksdoakdoaksdokasdooaskdoaksdoaksdoakdoaksdok</div>
+                        </h5>
+                    </span>
+                </div>
+                <div>
+                    <ul class="list-group" style="width: 50%; margin: auto;">
+                        @foreach (var product in GetProductsFromCartBuffer(item.CartBuffer))//Lists all items in cart
+                        {
+                            Food food = @ViewBag.FoodDefinitions[@product.Id];
+                            <li class="list-group-item"><div>@food.Name  x_@product.Amount</div></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div style="float: right; width: 20%; height: 6vh;">
+                <button type="button" class="btn btn-success" style="width: 100%; height: 100%;" onclick="FetchProductName(@item.Id)">Finish order</button>
+            </div>
+        </div>
+    }
+}

@@ -8,7 +8,9 @@ namespace Restaurant_Website.Models
     {
         public int Id { get; set; }
         public string OrderID { get; set; }//Order id in paypal database
-        public string Status { get; set; }//Transaction status
+        public string PayPalStatus { get; set; }//Transaction status
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public bool Finished { get; set; } = false;//Order is finished and should not be displayed to workers
         public decimal Value { get; set; }//Total amount charged
         public string CartBuffer { get; set; }//Buffer used to assemble cart
         public string PayerName { get; set; }

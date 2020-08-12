@@ -120,7 +120,6 @@ namespace Restaurant_Website.Controllers
             return buffer.ToString();
         }
 
-
         [HttpGet]
         public IActionResult GetCartItems()
         {
@@ -183,7 +182,6 @@ namespace Restaurant_Website.Controllers
             }
         }
 
-
         ///<summary>Returns success state</summary>
         private bool ProcessCapturedPaypalTransaction(string responseBody)
         {
@@ -192,7 +190,7 @@ namespace Restaurant_Website.Controllers
             {
                 Order order = new Order();
                 order.OrderID = json["id"];
-                order.Status = "COMPLETED";
+                order.PayPalStatus = "COMPLETED";
                 order.Value = json["purchase_units"][0]["amount"]["value"];
                 order.PayerName = json["payer"]["name"]["given_name"];
                 order.PayerLastName = json["payer"]["name"]["surname"];
