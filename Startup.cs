@@ -33,6 +33,7 @@ namespace Restaurant_Website
             services.AddDbContext<MvcFoodContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
             services.AddDbContext<CartContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
             services.AddDbContext<UserContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
+            services.AddDbContext<OrderContext>(options => options.UseMySQL(Configuration.GetConnectionString("MvcFoodContext")));
 
             services.AddSession(options =>
             {

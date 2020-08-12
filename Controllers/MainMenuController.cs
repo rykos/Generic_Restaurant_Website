@@ -7,16 +7,23 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Restaurant_Website.Models;
 using Microsoft.AspNetCore.Http;
+using System.Net.Http;
 using System.Text;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Restaurant_Website.Controllers
 {
     public class MainMenuController : Controller
     {
         private readonly MvcFoodContext _foodContext;
-        public MainMenuController(MvcFoodContext context)
+        private readonly OrderContext orderContext;
+        private readonly string _paypalAuthKey = "QVdvcm1EalpoVUlMTGR3NG9oMEJQeWk2empXaE4tLVppbE95SnlEUkFpQVFBdF9EOWtFbHo3S1RzSnNrZTJaT09fTmF2MmNsNDVfR3o4czU6RUE4YTV5SlVpYW9IV2FuVmVnYXJSSjNza1Q2TVRrUWVNWW5ldFZBbnJqLUhoOUplQndFcUFETkRJa3dUYlNVRTB4ekpNYmdWbjlRbUJwclo=";
+
+        public MainMenuController(MvcFoodContext context, OrderContext orderContext)
         {
             this._foodContext = context;
+            this.orderContext = orderContext;
         }
 
         //Get MainMenu
@@ -147,9 +154,58 @@ namespace Restaurant_Website.Controllers
             return View(await _foodContext.Food.Where(p => p.Available && p.Type == category).ToListAsync());
         }
 
-        public IActionResult CapturePaypalTransaction(string json)
+        [HttpPost]
+        public async Task<IActionResult> CapturePaypalTransaction(string id)
         {
-            return null;
+            //https://api.sandbox.paypal.com/v2/checkout/orders/order_id
+            if (id == null || id == "")
+            {
+                return BadRequest();
+            }
+            string url = $"https://api.sandbox.paypal.com/v2/checkout/orders/{id}";
+            HttpClient client = new HttpClient();
+            //Get
+            HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, url);
+            //Add authorization
+            msg.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", _paypalAuthKey);
+            //Fetch response
+            HttpResponseMessage response = await client.SendAsync(msg);
+            //Save response body
+            string responseBody = response.Content.ReadAsStringAsync().Result;
+            //Process response
+            if (this.ProcessCapturedPaypalTransaction(responseBody))
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+
+        ///<summary>Returns success state</summary>
+        private bool ProcessCapturedPaypalTransaction(string responseBody)
+        {
+            Dictionary<string, dynamic> json = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(responseBody);
+            if (json["status"] == "COMPLETED")
+            {
+                Order order = new Order();
+                order.OrderID = json["id"];
+                order.Status = "COMPLETED";
+                order.Value = json["purchase_units"][0]["amount"]["value"];
+                order.PayerName = json["payer"]["name"]["given_name"];
+                order.PayerLastName = json["payer"]["name"]["surname"];
+                order.PayerEmail = json["payer"]["email_address"];
+                order.PayerPhone = json["payer"]?["phone"]?["phone_number"]?["national_number"];
+                order.City = json["purchase_units"][0]["shipping"]["address"]["admin_area_2"];
+                order.Address = json["purchase_units"][0]["shipping"]?["address"]?["address_line_1"] + "&" + json["purchase_units"][0]?["shipping"]?["address"]?["address_line_2"];
+                order.CartBuffer = HttpContext.Session.GetString("CartBuffer") ?? "FAILED TO FETCH CART BUFFER";
+                this.orderContext.Add(order);
+                this.orderContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
     }
 }

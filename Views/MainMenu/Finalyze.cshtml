@@ -114,7 +114,9 @@
                         return actions.order.capture().then(function(details) {
                             // This function shows a transaction success message to your buyer.
                             console.log(details);
-                            alert('Transaction completed by ' + details.payer.name.given_name);
+                            $.post("/mainmenu/CapturePaypalTransaction/"+details.id).done(function(){
+                                alert('Transaction completed by ' + details.payer.name.given_name);
+                            });
                         });
                     }
                 }).render('#paypal-button-container');
