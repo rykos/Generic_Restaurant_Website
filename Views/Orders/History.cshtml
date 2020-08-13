@@ -9,7 +9,6 @@
         $.post("Orders/FinishOrder/"+id);
     }
 </script>
-
 @functions{
     public struct CartBufferElement
     {
@@ -36,6 +35,13 @@
     }
 }
 @{
+    if(Model.Count() == 0){
+        <div class="jumbotron jumbotron-fluid">
+            <div>
+                <h1 style="text-align: center;">Currently there are no orders</h1>    
+            </div>
+        </div>
+    }
     foreach(var item in Model)
     {
         <div class="jumbotron jumbotron-fluid">
@@ -52,7 +58,7 @@
                     </span>
                     <span class="badge badge-secondary">
                         <h5>Ship to: 
-                            <div style="font-size: 1.5vh;">Ulica asdooaskdoaksdoaksdoakdoaksdokasdooaskdoaksdoaksdoakdoaksdok</div>
+                            <div style="font-size: 1.5vh;">@item.Address </div>
                         </h5>
                     </span>
                 </div>

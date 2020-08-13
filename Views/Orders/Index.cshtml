@@ -1,4 +1,7 @@
 @model IEnumerable<Order>
+@{
+    
+}
 <style>
     span{
         margin: 0.75%;
@@ -9,11 +12,6 @@
         $.post("Orders/FinishOrder/"+id);
     }
 </script>
-@section Topmenu{
-    <li>
-        <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="History">Orders History</a>
-    </li>
-}
 @functions{
     public struct CartBufferElement
     {
@@ -63,7 +61,7 @@
                     </span>
                     <span class="badge badge-secondary">
                         <h5>Ship to: 
-                            <div style="font-size: 1.5vh;">Ulica asdooaskdoaksdoaksdoakdoaksdokasdooaskdoaksdoaksdoakdoaksdok</div>
+                            <div style="font-size: 1.5vh;">@item.Address </div>
                         </h5>
                     </span>
                 </div>

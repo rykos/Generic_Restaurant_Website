@@ -1,0 +1,55 @@
+<script src="~/lib/jquery/dist/jquery.js" type="text/javascript"></script>
+<script>
+    function SetupData(){
+        let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        $.get("/RestaurantManager/getworktimes").done(function(data){
+            data = JSON.parse(data);
+            for(let i = 0; i < data.length; i++){
+                $(`#is-open_${days[i]}`).prop("checked", data[i]["IsOpen"]);
+                $(`#start-time_${days[i]}`).val(data[i]["Start"].split('T')[1]);
+                $(`#end-time_${days[i]}`).val(data[i]["End"].split('T')[1]);
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', SetupData(), false);
+</script>
+
+<div class="container" style="display: flex;">
+    <div style="width: 30%; margin-right: 5%;">
+        <div class="list-group">
+        <a asp-action="RestaurantDetails" class="list-group-item list-group-item-action">Restaurant Details</a>
+        <a asp-action="WorkTimes" class="list-group-item list-group-item-action">Work Times</a>
+        <a asp-action="Accounts" class="list-group-item list-group-item-action">Accounts</a>
+        </div>
+    </div>
+    <div style="width: 70%; height: 100%;">
+        <form asp-action="EditWorkTimes">
+            @{
+                string[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+                foreach(string day in days){
+                    <span class="badge badge-secondary" style="width: 35%; margin: 2%;">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label class="control-label">@day</label>
+                            <div class="col-md-10">
+                                <label class="control-label">Is open:</label>
+                                <input type="checkbox" name="is-open_@day" id="is-open_@day">
+                            </div>
+                            <div class="col-md-10">
+                                <label class="control-label">Start:</label>
+                                <input type="time" name="start-time_@day" id="start-time_@day"/>
+                            </div>
+                            <div class="col-md-10">
+                                <label class="control-label">End:</label>
+                                <input type="time" name="end-time_@day" id="end-time_@day"/>
+                            </div>
+                        </div>
+                    </span>
+                }
+                <div>
+                    <input type="submit" class="btn btn-success" value="Save"/>
+                </div>
+            }
+        </form>
+    </div>
+</div>

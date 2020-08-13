@@ -22,14 +22,7 @@
                     <ul class="navbar-nav flex-grow-1">
                         @{
                             if(User.Identity.IsAuthenticated){
-                                <li>
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="foodcrud" asp-action="Index">foodcrud</a>
-                                </li>
-                                if(User.IsInRole("Worker") || User.IsInRole("Administrator")){
-                                <li>
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a>
-                                </li>
-                                }
+                                @await Html.PartialAsync("/Views/Administrative/AdminTopMenuPartial.cshtml")
                             }
                         }
                         @RenderSection("TopMenu", required: false)

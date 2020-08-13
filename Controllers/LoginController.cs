@@ -61,20 +61,6 @@ namespace Restaurant_Website.Controllers
             }
         }
 
-        private bool Verify(User user)
-        {
-
-            // User dbUser = _context.Users.FirstOrDefault(x => x.Username == user.Username);
-            // if (dbUser != null)
-            // {
-            //     if (dbUser.Password == user.Password)
-            //     {
-            //         return true;
-            //     }
-            // }
-            return false;
-        }
-
         [HttpPost]
         public async Task<IActionResult> Register([Bind("Email,Username,Password")] User user)
         {
@@ -115,8 +101,6 @@ namespace Restaurant_Website.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            // IdentityUser user = await this.userManager.GetUserAsync(this.User);
-            // await this.userManager.AddToRoleAsync(user, "Administrator");
             await this.signInManager.SignOutAsync();
             return RedirectToAction("Index", "MainMenu");
         }
@@ -125,7 +109,7 @@ namespace Restaurant_Website.Controllers
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "MainMenu");
+                return RedirectToAction("Index", "RestaurantManager");
             }
             return View();
         }
@@ -134,7 +118,7 @@ namespace Restaurant_Website.Controllers
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "MainMenu");
+                return RedirectToAction("Index", "RestaurantManager");
             }
             return View();
         }
