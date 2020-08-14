@@ -75,7 +75,7 @@ namespace Restaurant_Website.Controllers
                 UserName = user.Username,
                 Email = user.Email,
             };
-
+            
             var result = await this.userManager.CreateAsync(newUser, user.Password);
             if (result.Succeeded)
             {

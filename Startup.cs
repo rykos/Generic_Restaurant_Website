@@ -44,9 +44,10 @@ namespace Restaurant_Website
 
             services.AddIdentity<IdentityUser, IdentityRole>()
             .AddEntityFrameworkStores<UserContext>()
-            .AddDefaultTokenProviders(); 
+            .AddDefaultTokenProviders();
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddScoped<IAccountLogic, AccountLogic>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

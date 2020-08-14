@@ -1,0 +1,51 @@
+@using Microsoft.AspNetCore.Identity;
+@model IdentityUser
+
+<div class="container" style="">
+    <div style="margin: auto; width: 60%;">
+        <form asp-action="UpdateProfile">
+            <div class="row">
+                <input hidden id="id" name="id" value="@Model.Id"></input>
+                <div class="col-sm-4">
+                    <label class="form-control">@Html.DisplayNameFor(x => x.UserName)</label>      
+                </div>
+                <div class="col-sm-8">
+                    <input id="username" name="username" class="form-control" value="@Html.DisplayFor(x => x.UserName)"></input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="form-control">@Html.DisplayNameFor(x => x.Email)</label>      
+                </div>
+                <div class="col-sm-8">
+                    <input id="email" name="email" class="form-control" type="email" value="@Html.DisplayFor(x => x.Email)"></input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" style="margin-bottom: 1%;">
+                    <div style="display: flex;">
+                        <input type="submit" value="Update Information" class="btn btn-primary" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form asp-action="UpdateProfilePassword" method="POST">
+            <input hidden id="id" name="id" value="@Model.Id"></input>
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="form-control">Password</label>      
+                </div>
+                <div class="col-sm-8">
+                    <input name="password" id="password" class="form-control" type="password" value=""></input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" style="margin-bottom: 1%;">
+                    <div style="display: flex;">
+                        <input type="submit" value="Change Password" class="btn btn-danger" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

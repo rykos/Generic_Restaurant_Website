@@ -1,0 +1,9 @@
+@model string
+<div style="width: 30%; margin-right: 5%;">
+    <div class="list-group">
+        <a asp-action="WorkTimes" class="list-group-item list-group-item-action">Work Times</a>
+        <a asp-action="Accounts" class="list-group-item list-group-item-action">Accounts</a>
+        <a asp-action="Logout" class="list-group-item list-group-item-action">Logout</a>
+        <button class="list-group-item list-group-item-action" disabled>Logged in as: @Model</button>
+    </div>
+</div>

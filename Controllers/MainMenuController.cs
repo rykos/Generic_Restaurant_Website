@@ -18,20 +18,32 @@ namespace Restaurant_Website.Controllers
     {
         private readonly MvcFoodContext _foodContext;
         private readonly OrderContext orderContext;
+        private readonly WorkTimeContext workTimeContext;
+        private readonly IAccountLogic accountLogic;
         private readonly string _paypalAuthKey = "QVdvcm1EalpoVUlMTGR3NG9oMEJQeWk2empXaE4tLVppbE95SnlEUkFpQVFBdF9EOWtFbHo3S1RzSnNrZTJaT09fTmF2MmNsNDVfR3o4czU6RUE4YTV5SlVpYW9IV2FuVmVnYXJSSjNza1Q2TVRrUWVNWW5ldFZBbnJqLUhoOUplQndFcUFETkRJa3dUYlNVRTB4ekpNYmdWbjlRbUJwclo=";
 
-        public MainMenuController(MvcFoodContext context, OrderContext orderContext)
+        public MainMenuController(MvcFoodContext context, OrderContext orderContext, WorkTimeContext workTimeContext, IAccountLogic accountLogic)
         {
             this._foodContext = context;
             this.orderContext = orderContext;
+            this.workTimeContext = workTimeContext;
+            this.accountLogic = accountLogic;
         }
 
         //Get MainMenu
         public async Task<IActionResult> Index()
         {
+            
+            if (!IsWorkingTime())
+                return await WeAreNotWorking();
             ViewBag.FoodTypes = this.GetFoodCategory();
             ViewBag.CartBuffer = this.CartItems(HttpContext.Session.GetString("CartBuffer"));
             return View(await _foodContext.Food.Where(x => x.Available == true).ToListAsync());
+        }
+
+        public async Task<IActionResult> WeAreNotWorking()
+        {
+            return View("/Views/MainMenu/NotWorking.cshtml", await this.workTimeContext.WorkTimes.AsNoTracking().ToListAsync());
         }
 
         public async Task<IActionResult> Product(int? id)
@@ -39,6 +51,10 @@ namespace Restaurant_Website.Controllers
             if (id == null)
             {
                 return NotFound();
+            }
+            if (!IsWorkingTime())
+            {
+                return await WeAreNotWorking();
             }
             ViewBag.CartBuffer = this.CartItems(HttpContext.Session.GetString("CartBuffer"));
             return View(await _foodContext.Food.FirstOrDefaultAsync(x => x.Id == id));
@@ -203,6 +219,30 @@ namespace Restaurant_Website.Controllers
                 this.orderContext.SaveChangesAsync();
                 return true;
             }
+            return false;
+        }
+
+        private bool IsWorkingTime()
+        {
+            TimeSpan now = DateTime.Now.TimeOfDay;
+            string dayName = DateTime.Now.DayOfWeek.ToString();
+            WorkTime workTime = this.workTimeContext.WorkTimes.AsNoTracking().Where(x => x.Day == dayName).FirstOrDefault();
+
+            TimeSpan start = workTime.Start.TimeOfDay;
+            TimeSpan end = workTime.End.TimeOfDay;
+
+            if (now >= start && now <= end)//Work hours
+            {
+                return true;
+            }
+            else if (end < start)//work extends into next day
+            {
+                if (now <= end)
+                {
+                    return true;
+                }
+            }
+            //Closed
             return false;
         }
     }

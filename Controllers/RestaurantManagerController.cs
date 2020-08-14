@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Identity;
 
 namespace Restaurant_Website.Controllers
 {
@@ -15,7 +16,15 @@ namespace Restaurant_Website.Controllers
     public class RestaurantManagerController : Controller
     {
         private readonly WorkTimeContext workTimeContext;
-        public RestaurantManagerController(WorkTimeContext workTimeContext) => this.workTimeContext = workTimeContext;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly IAccountLogic accountLogic;
+
+        public RestaurantManagerController(WorkTimeContext workTimeContext, UserManager<IdentityUser> userManager, IAccountLogic accountLogic)
+        {
+            this.workTimeContext = workTimeContext;
+            this.userManager = userManager;
+            this.accountLogic = accountLogic;
+        }
 
         public IActionResult Index()
         {
@@ -32,9 +41,58 @@ namespace Restaurant_Website.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Administrator")]
         public IActionResult Accounts()
         {
-            return View();
+            return View(this.userManager.Users.ToList());
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> UpdateProfile(IFormCollection data)
+        {
+            IdentityUser user = await this.userManager.FindByIdAsync(data["id"].ToString());
+            if (data["username"].ToString() != null)
+            {
+                this.accountLogic.ChangeUsernameForID(user.Id, data["username"]);
+            }
+            if (data["email"].ToString() != null)
+            {
+                this.accountLogic.ChangeEmailForID(user.Id, data["email"]);
+            }
+
+            return RedirectToAction("Accounts");
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfilePassword(IFormCollection data)
+        {
+            if (data["password"].ToString() != null && data["id"].ToString() != null)
+            {
+                var pv = new PasswordValidator<IdentityUser>();
+                var passwordValidation = await pv.ValidateAsync(this.userManager, null, data["password"].ToString());
+                if (passwordValidation.Succeeded)
+                {
+                    this.accountLogic.ChangePasswordForID(data["id"].ToString(), data["password"].ToString());
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            return RedirectToAction("Accounts");
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> AccountDetails(string id)
+        {
+            return View(await this.userManager.FindByIdAsync(id));
+        }
+
+        public IActionResult Logout()
+        {
+            this.accountLogic.Logout();
+            return RedirectToAction("Login", "Login");
         }
 
         public IActionResult EditWorkTimes(IFormCollection data)
@@ -51,8 +109,8 @@ namespace Restaurant_Website.Controllers
                     string startTime = data["start-time_" + day];
                     string endTime = data["end-time_" + day];
                     DateTime tempDate;
-                    workTime.Start = DateTime.TryParseExact(data["start-time_" + day], "H:mm", null, System.Globalization.DateTimeStyles.None, out tempDate) ? tempDate : default;
-                    workTime.End = DateTime.TryParseExact(data["end-time_" + day], "H:mm", null, System.Globalization.DateTimeStyles.None, out tempDate) ? tempDate : default;
+                    workTime.Start = DateTime.TryParseExact(startTime, "HH:mm", null, System.Globalization.DateTimeStyles.None, out tempDate) ? tempDate : default;
+                    workTime.End = DateTime.TryParseExact(endTime, "HH:mm", null, System.Globalization.DateTimeStyles.None, out tempDate) ? tempDate : default;
                 }
                 else
                 {
@@ -64,7 +122,7 @@ namespace Restaurant_Website.Controllers
             if (workTimes.Count == 7)
             {
                 this.SaveWorkTimes(workTimes);
-                return Ok();
+                return RedirectToAction("Index");
             }
             return BadRequest();
         }
@@ -85,14 +143,16 @@ namespace Restaurant_Website.Controllers
                     var day = this.workTimeContext.WorkTimes.FirstOrDefault(x => x.Day == workTime.Day);
                     this.workTimeContext.WorkTimes.Update(day);
                     day.IsOpen = workTime.IsOpen;
-                    day.Start = workTime.Start;
-                    day.End = workTime.End;
+                    if (workTime.Start != default)
+                        day.Start = workTime.Start;
+                    if (workTime.End != default)
+                        day.End = workTime.End;
                 }
                 else
                 {
                     this.workTimeContext.WorkTimes.AddAsync(workTime);
                 }
-                this.workTimeContext.SaveChangesAsync();
+                this.workTimeContext.SaveChanges();
             }
         }
     }
